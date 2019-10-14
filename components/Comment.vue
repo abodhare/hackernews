@@ -20,7 +20,7 @@
 <script>
 import gql from 'graphql-tag'
 const comments = gql`
-  query comments($id: Int!) {
+  query loadedComments($id: Int!) {
     item(id: $id) {
       id
       title
@@ -45,7 +45,8 @@ export default {
   },
   data() {
     return {
-      open: true
+      open: true,
+      loadedComments: {}
     }
   },
   computed: {
@@ -59,10 +60,11 @@ export default {
       query: comments,
       variables () {
         return {
-          id: this.id
+          id: this.comment.id
         }
-      }
-    }
+      },
+      update: data => data.item
+    },
   },
   methods: {
     pluralize: n => n + (n === 1 ? ' reply' : ' replies')

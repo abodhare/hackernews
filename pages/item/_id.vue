@@ -41,6 +41,7 @@ const items = gql`
       title
       points
       user
+      url
       time
       content
       comments {
@@ -60,6 +61,12 @@ export default {
     }
   },
 
+  data() {
+    return {
+      item: {}
+    }
+  },
+
   computed: {
     id() {
       return this.$route.params.id
@@ -74,7 +81,8 @@ export default {
         return {
           id: parseInt(this.$route.params.id, 10)
         }
-      }
+      },
+      update: data => data.item,
     }
   },
 

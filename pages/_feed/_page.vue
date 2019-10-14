@@ -36,7 +36,8 @@ export default {
   data() {
     return {
       transition: 'slide-right',
-      displayedPage: Number(this.page) || 1
+      displayedPage: Number(this.page) || 1,
+      feedItems: []
     }
   },
 
@@ -75,7 +76,8 @@ export default {
           index: this.$route.params.page || 1,
           type: this.$route.params.feed
         }
-      }
+      },
+      update: data => data.feeds
     }
   },
 
