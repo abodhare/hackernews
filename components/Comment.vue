@@ -1,23 +1,40 @@
 <template>
-  <li v-if="comment && comment.user" class="comment">
+  <li v-if="loadedComments && loadedComments.user" class="comment">
     <div class="by">
-      <router-link :to="'/user/' + comment.user">
-        {{ comment.user }}
+      <router-link :to="'/user/' + loadedComments.user">
+        {{ loadedComments.user }}
       </router-link>
-      {{ comment.time | timeAgo }} ago
+      {{ loadedComments.time | timeAgo }} ago
     </div>
-    <div class="text" v-html="comment.content" />
-    <div v-if="comment.comments && comment.comments.length" :class="{ open }" class="toggle">
-      <a @click="open = !open">{{ open ? '[-]' : '[+] ' + pluralize(comment.comments.length) + ' collapsed' }}
+    <div class="text" v-html="loadedComments.content" />
+    <div v-if="loadedComments.comments && loadedComments.comments.length" :class="{ open }" class="toggle">
+      <a @click="open = !open">{{ open ? '[-]' : '[+] ' + pluralize(loadedComments.comments.length) + ' collapsed' }}
       </a>
     </div>
     <ul v-show="open" class="comment-children">
-      <comment v-for="childComment in comment.comments" :key="childComment.id" :comment="childComment" />
+      <comment v-for="childComment in loadedComments.comments" :key="childComment.id" :comment="childComment" />
     </ul>
   </li>
 </template>
 
 <script>
+import gql from 'graphql-tag'
+const comments = gql`
+  query comments($id: Int!) {
+    item(id: $id) {
+      id
+      title
+      points
+      user
+      time
+      content
+      comments {
+        id
+      }
+    }
+  }
+`;
+
 export default {
   name: 'Comment',
   props: {
@@ -29,6 +46,22 @@ export default {
   data() {
     return {
       open: true
+    }
+  },
+  computed: {
+    id() {
+      return this.comment.id
+    }
+  },
+  apollo: {
+    $loadingKey: 'loading',
+    loadedComments: {
+      query: comments,
+      variables () {
+        return {
+          id: this.id
+        }
+      }
     }
   },
   methods: {

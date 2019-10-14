@@ -26,17 +26,23 @@
 
 <script>
 import LazyWrapper from '~/components/LazyWrapper'
+import gql from 'graphql-tag'
+
+const user = gql`
+  query user($id: String!) {
+    user(id: $id) {
+      id
+      created_time
+      karma
+      about
+    }
+  }
+`;
 
 export default {
   name: 'UserView',
 
   components: { LazyWrapper },
-
-  computed: {
-    user() {
-      return this.$store.state.users[this.$route.params.id]
-    }
-  },
 
   head() {
     return {
@@ -44,8 +50,16 @@ export default {
     }
   },
 
-  fetch({ store, route: { params: { id } } }) {
-    return store.dispatch('FETCH_USER', { id })
+  apollo: {
+    $loadingKey: 'loading',
+    user: {
+      query: user,
+      variables () {
+        return {
+          id: this.$route.params.id
+        }
+      }
+    }
   }
 }
 </script>

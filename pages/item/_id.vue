@@ -32,6 +32,23 @@
 <script>
 import Comment from '~/components/Comment'
 import LazyWrapper from '~/components/LazyWrapper'
+import gql from 'graphql-tag'
+
+const items = gql`
+  query items($id: Int!) {
+    item(id: $id) {
+      id
+      title
+      points
+      user
+      time
+      content
+      comments {
+        id
+      }
+    }
+  }
+`;
 
 export default {
   name: 'ItemView',
@@ -47,13 +64,18 @@ export default {
     id() {
       return this.$route.params.id
     },
-    item() {
-      return this.$store.state.items[this.id]
-    }
   },
 
-  fetch({ store, params: { id } }) {
-    return store.dispatch('FETCH_ITEM', { id })
+  apollo: {
+    $loadingKey: 'loading',
+    item: {
+      query: items,
+      variables () {
+        return {
+          id: parseInt(this.$route.params.id, 10)
+        }
+      }
+    }
   },
 
   methods: {

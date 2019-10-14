@@ -6,7 +6,7 @@
       <transition :name="transition" mode="out-in">
         <div :key="displayedPage" class="news-list">
           <transition-group tag="ul" name="item">
-            <item v-for="item in displayedItems" :key="item.id" :item="item" />
+            <item v-for="item in feedItems" :key="item.id" :item="item" />
           </transition-group>
         </div>
       </transition>
@@ -20,6 +20,7 @@ import Item from '~/components/Item.vue'
 import ItemListNav from '~/components/ItemListNav.vue'
 import LazyWrapper from '~/components/LazyWrapper'
 import { feeds, validFeeds } from '~/common/api'
+import gql from 'graphql-tag'
 
 export default {
   components: {
@@ -49,24 +50,37 @@ export default {
     maxPage() {
       return feeds[this.feed].pages
     },
-    pageData() {
-      return this.$store.state.feeds[this.feed][this.page]
-    },
-    displayedItems() {
-      return this.pageData.map(id => this.$store.state.items[id])
-    },
     loading() {
-      return this.displayedItems.length === 0
+      return this.feedItems.length === 0
+    }
+  },
+
+  apollo: {
+    feedItems: {
+      query: gql`
+        query feedItems($type: String!, $index: Int!) {
+          feeds(index: $index, type: $type) {
+            id
+            title
+            points
+            user
+            time
+            comments_count
+            type
+            url
+          }
+      }`,
+      variables () {
+        return {
+          index: this.$route.params.page || 1,
+          type: this.$route.params.feed
+        }
+      }
     }
   },
 
   watch: {
     page: 'pageChanged'
-  },
-
-  fetch({ store, params: { feed, page = 1 } }) {
-    page = Number(page) || 1
-    return store.dispatch('FETCH_FEED', { feed, page })
   },
 
   head() {
@@ -85,15 +99,6 @@ export default {
         this.$router.replace(`/${this.feed}/1`)
         return
       }
-
-      // Prefetch next page
-      this.$store
-        .dispatch('FETCH_FEED', {
-          feed: this.feed,
-          page: this.page + 1,
-          prefetch: true
-        })
-        .catch(() => {})
 
       this.transition =
         from === -1 ? null : to > from ? 'slide-left' : 'slide-right'

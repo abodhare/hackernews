@@ -7,9 +7,7 @@ export default {
       { property: 'twitter:site', content: '@nuxt_js' }
     ],
     link: [
-      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-      { rel: 'dns-prefetch', href: 'https://api.hackerwebapp.com' },
-      { rel: 'preconnect', href: 'https://api.hackerwebapp.com' }
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
 
@@ -26,12 +24,17 @@ export default {
   },
 
   devModules: [
-    '@nuxtjs/pwa',
-    '@nuxtjs/axios'
+    '@nuxtjs/pwa'
   ],
 
-  axios: {
-    baseURL: 'https://api.hackerwebapp.com'
+  modules: [
+    '@nuxtjs/apollo'
+  ],
+
+  apollo: {
+    clientConfigs: {
+      default: '~/apollo/client-configs/default.js'
+    }
   },
 
   plugins: [
